@@ -25,6 +25,19 @@ if [ $SKIP_PACKAGE -eq 0 ]; then
   mvn -f "$PROJECT_DIR/pom.xml" -DskipTests package
 fi
 
-# Run the main class from compiled classes
 echo "Running SearchEngineApp..."
-java -cp "$PROJECT_DIR/target/classes" com.searchplayground.core.SearchEngineApp
+# Ensure runtime dependencies are copied to target/dependency and run with them on the classpath
+echo "Copying runtime dependencies..."
+mvn -f "$PROJECT_DIR/pom.xml" dependency:copy-dependencies -DoutputDirectory="$PROJECT_DIR/target/dependency" -DincludeScope=runtime
+
+JAR="$PROJECT_DIR/target/search-engine-playground-1.0-SNAPSHOT.jar"
+if [ ! -f "$JAR" ]; then
+  # If jar is missing, fall back to classes directory
+  echo "Jar not found, running from classes + dependency classpath"
+  CP="$PROJECT_DIR/target/classes:$PROJECT_DIR/target/dependency/*"
+else
+  CP="$JAR:$PROJECT_DIR/target/dependency/*"
+fi
+
+echo "Running SearchEngineApp with classpath: $CP"
+java -cp "$CP" com.searchplayground.core.SearchEngineApp
