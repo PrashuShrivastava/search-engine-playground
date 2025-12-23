@@ -40,6 +40,6 @@ else
 fi
 
 echo "Running SearchEngineApp with classpath: $CP"
-java -Dorg.slf4j.simpleLogger.logFile=app.log \
+java -Dorg.slf4j.simpleLogger.logFile=./search-engine-playground/app.log \
      -Dorg.slf4j.simpleLogger.defaultLogLevel=info \
      -cp "$CP" com.searchplayground.core.SearchEngineApp
