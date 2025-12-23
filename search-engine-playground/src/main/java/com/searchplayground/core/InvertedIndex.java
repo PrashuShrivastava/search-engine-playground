@@ -1,20 +1,33 @@
 package com.searchplayground.core;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.*;
 
 public class InvertedIndex {
+
+    private static final Logger logger = LoggerFactory.getLogger(InvertedIndex.class);
 
     // token -> set of document IDs
     private final Map<String, Set<Integer>> index = new HashMap<>();
     private final Tokenizer tokenizer = new Tokenizer();
 
     public void addDocument(Document doc) {
+        if (doc == null) {
+            logger.warn("Attempted to add null document");
+            return;
+        }
+
         List<String> tokens = tokenizer.tokenize(doc.getContent());
+        logger.debug("Adding document id={} tokens={}", doc.getId(), tokens);
 
         for (String token : tokens) {
             index.computeIfAbsent(token, k -> new HashSet<>())
                     .add(doc.getId());
         }
+
+        logger.info("Document {} indexed ({} tokens)", doc.getId(), tokens.size());
     }
 
     public Set<Integer> searchSingleToken(String token) {
@@ -22,7 +35,9 @@ public class InvertedIndex {
             return Collections.emptySet();
         }
         token = token.toLowerCase();
-        return index.getOrDefault(token, Collections.emptySet());
+        Set<Integer> result = index.getOrDefault(token, Collections.emptySet());
+        logger.debug("searchSingleToken('{}') -> {}", token, result);
+        return result;
     }
 
     /**
@@ -58,10 +73,12 @@ public class InvertedIndex {
             }
 
             if (result.isEmpty()) {
+                logger.debug("AND search tokens={} -> empty after token={}", normalized, token);
                 return Collections.emptySet();
             }
         }
 
+        logger.debug("AND search tokens={} -> {}", normalized, result);
         return result != null ? result : Collections.emptySet();
     }
 
@@ -88,13 +105,14 @@ public class InvertedIndex {
             result.addAll(posting);
         }
 
+        logger.debug("OR search tokens={} -> {}", tokens, result);
         return result;
     }
 
     public void printIndex() {
-        System.out.println("---- Inverted Index ----");
+        logger.info("---- Inverted Index ----");
         for (Map.Entry<String, Set<Integer>> entry : index.entrySet()) {
-            System.out.println(entry.getKey() + " -> " + entry.getValue());
+            logger.info("{} -> {}", entry.getKey(), entry.getValue());
         }
     }
 }

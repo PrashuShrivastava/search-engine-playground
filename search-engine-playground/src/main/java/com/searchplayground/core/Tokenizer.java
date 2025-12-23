@@ -1,14 +1,20 @@
 package com.searchplayground.core;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class Tokenizer {
 
+    private static final Logger logger = LoggerFactory.getLogger(Tokenizer.class);
+
     public List<String> tokenize(String text) {
         List<String> tokens = new ArrayList<>();
 
         if (text == null || text.isEmpty()) {
+            logger.debug("Empty input to tokenize()");
             return tokens;
         }
 
@@ -27,6 +33,7 @@ public class Tokenizer {
             }
         }
 
+        logger.debug("tokenize() -> {} tokens", tokens.size());
         return tokens;
     }
 }

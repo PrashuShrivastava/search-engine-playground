@@ -5,6 +5,9 @@ import java.util.*;
 public class SearchEngineApp {
 
     public static void main(String[] args) {
+        org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SearchEngineApp.class);
+
+        logger.info("Starting SearchEngineApp");
         // 1. Create some sample documents
         List<Document> documents = List.of(
                 new Document(1, "Chicken biryani with spicy masala"),
@@ -20,6 +23,8 @@ public class SearchEngineApp {
         }
 
         index.printIndex();
+
+        logger.info("Index built with {} entries", documents.size());
 
         // 3. Interactive search loop
         Scanner scanner = new Scanner(System.in);
@@ -78,8 +83,11 @@ public class SearchEngineApp {
 
             if (resultDocIds.isEmpty()) {
                 System.out.println("No documents found.");
+                logger.info("No documents matched for query: {}", line);
             } else {
                 System.out.println("Matched document IDs: " + resultDocIds);
+
+                logger.info("Query '{}' matched {} documents", line, resultDocIds.size());
 
                 for (Document doc : documents) {
                     if (resultDocIds.contains(doc.getId())) {
@@ -90,5 +98,6 @@ public class SearchEngineApp {
         }
 
         scanner.close();
+        logger.info("SearchEngineApp exiting");
     }
 }
